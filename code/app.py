@@ -4,26 +4,37 @@ import joblib
 import os
 from datetime import datetime
 import numpy as np
-import altair as alt # Crucial for the analytical dashboard charts
+import altair as alt # Needed for the analytical dashboard charts
 
 # --- CONFIGURATION ---
 # Define the MLOps deployment path for your Ensemble Pipeline
-# NOTE: Ensure this path matches where you saved your .pkl file.
-MODEL_PATH = r"E:\FraudPulse\models\fraud_detection_deployment_pipeline.pkl" 
+
+# Get the directory of the current script (e.g., E:\FraudPulse\code)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__)) 
+# Define the path to the model file: UP one level (..) then INTO the 'models' folder
+MODEL_NAME = "fraud_detection_deployment_pipeline.pkl"
+MODEL_PATH = os.path.join(BASE_DIR, "..", "models", MODEL_NAME)
+
 
 # --- MODEL LOADING (Run Once at Startup) ---
 @st.cache_resource
 def load_model():
-    """Loads the Stacking Ensemble Pipeline with its preprocessor."""
+    """
+    Loads the Stacking Ensemble Pipeline with its preprocessor.
+    This function uses the dynamic path to ensure the model is found across environments.
+    """
     try:
         if not os.path.exists(MODEL_PATH):
-            st.error(f"❌ ERROR: Model file not found at the specified path: {MODEL_PATH}")
+            st.error(f"❌ CRITICAL ERROR: Model file not found at expected path: {MODEL_PATH}")
+            st.warning("Please ensure the 'models' folder is next to the 'code' folder.")
             st.stop()
         
+        # Load the Stacking Ensemble + Preprocessor
         pipeline = joblib.load(MODEL_PATH)
+        st.sidebar.success("✅ Model Pipeline Loaded")
         return pipeline
     except Exception as e:
-        st.error(f"❌ ERROR loading pipeline: {e}")
+        st.error(f"❌ GENERAL ERROR loading pipeline: {e}")
         st.stop()
 
 model = load_model()
@@ -137,13 +148,13 @@ def dashboard_page():
     st.markdown("---")
 
 
-    # --- SECTION B: ANALYTICAL VISUALIZATIONS (Corrected Altair Syntax) ---
+    # --- SECTION B: ANALYTICAL VISUALIZATIONS (Altair Charts) ---
     
     st.header("2. Analytical Insights and Risk Scoping")
     
     c1, c2 = st.columns(2)
     
-    # Chart 1: Transaction Volume Distribution (Risk Scoping) - CORRECTED SYNTAX
+    # Chart 1: Transaction Volume Distribution (Risk Scoping)
     volume_chart = alt.Chart(volume_data).mark_bar().encode(
         x=alt.X('Transaction Type', sort='-y'),
         y=alt.Y('Volume (Millions)', title='Volume (Millions)'),
@@ -164,7 +175,7 @@ def dashboard_page():
     c1.altair_chart(volume_chart, use_container_width=True)
 
     
-    # Chart 2: Fraud Rate by Type (Bivariate Confirmation) - Corrected Subheader Placement
+    # Chart 2: Fraud Rate by Type (Bivariate Confirmation)
     risk_chart = alt.Chart(risk_data).mark_bar(color='salmon').encode(
         x=alt.X('Transaction Type', sort='-y'),
         y=alt.Y('Fraud Rate (%)', title='Fraud Rate (%)'),
