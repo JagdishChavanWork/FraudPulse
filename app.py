@@ -5,13 +5,14 @@ import os
 from datetime import datetime
 import numpy as np
 import altair as alt
-import sys 
+import sys # Required for dynamic path resolution
 
-# --- CRITICAL FIX: Add project root to path for module discovery ---
-# This fixes the general ImportErrors for 'database' and 'app_modules'
+# --- CRITICAL FIX: Add project root to path for local module discovery ---
+# This ensures Python can find 'database' and 'app_modules'
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
+
 
 # --- MLOPS IMPORTS ---
 from database.database_connector import get_db
@@ -20,7 +21,7 @@ from sqlalchemy.orm import Session
 from database.models import PredictionLog, Employee 
 
 # --- IMPORT MODULED PAGES ---
-# These functions will now load correctly because sys.path is fixed
+# These functions MUST exist in the app_modules folder and contain their definitions.
 from app_modules.dashboard_reports import dashboard_page
 from app_modules.prediction_utility import prediction_page
 from app_modules.admin_management import admin_management_page 
@@ -119,6 +120,7 @@ def main():
 
     # --- Conditional Page Rendering ---
     
+    # FIX: The model argument is passed directly to the prediction page call
     page_map = {
         "📊 Performance Dashboard": dashboard_page,
         "🔍 Real-Time Prediction": lambda: prediction_page(model), 
