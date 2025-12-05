@@ -1,34 +1,27 @@
-# app_modules/prediction_utility.py
+# app_modules/prediction_utility.py (CLEANED)
 
 import streamlit as st
 import pandas as pd
 from sqlalchemy.orm import Session
-# Note: These imports assume the correct structure relative to the app_modules folder
 from database.database_connector import get_db
 from database.models import PredictionLog 
-#from app_modules.admin_management import get_current_user_db_details # For Prediction Logging User Context
-
+import numpy as np
 
 # --- HELPER FUNCTION: Feature Engineering ---
 
 def feature_engineer_input(input_df: pd.DataFrame) -> pd.DataFrame:
     """Applies the custom feature engineering logic to raw input data."""
     
-    # 1. Calculate Core Predictors (Balance Differences)
     input_df["balanceDiffOrig"] = input_df["oldbalanceOrg"] - input_df["newbalanceOrig"]
     input_df["balanceDiffDest"] = input_df["newbalanceDest"] - input_df["oldbalanceDest"]
-    
-    # 2. Behavioral Flag (is_merchant)
     input_df["is_merchant"] = input_df["nameDest"].str.startswith('M').astype(int)
-    
-    # 3. Velocity Feature Proxy (Hardcoded 0 for MVP)
     input_df['Orig_Count_1step'] = 0 
     
     return input_df
 
 
 # --- MAIN PAGE FUNCTION ---
-# CRITICAL FIX: Function MUST accept the 'model' object passed from app.py
+# FIX: Function MUST accept the 'model' argument
 def prediction_page(model): 
     st.header("Real-Time Risk Assessment Utility")
     st.markdown("Enter the 9 required raw transaction parameters below to test the Stacking Ensemble Model.")
@@ -38,17 +31,14 @@ def prediction_page(model):
     with st.form("prediction_form"):
         c1, c2, c3 = st.columns(3)
         
-        # FE Required Inputs
         step = c1.number_input("Current Hour (Step)", min_value=1, value=300)
         nameOrig = c2.text_input("Sender ID (nameOrig)", value="C_TEST_SENDER")
         nameDest = c3.text_input("Receiver ID (nameDest)", value="C_TEST_RECEIVER")
         
-        # Core Transaction Details
         c4, c5 = st.columns(2)
         transaction_type = c4.selectbox("Transaction Type", ["TRANSFER", "CASH_OUT", "PAYMENT", "CASH_IN", "DEBIT"])
         amount = c5.number_input("Amount", min_value=0.0, value=9999.0)
         
-        # Balances
         st.subheader("Account Balances")
         c6, c7 = st.columns(2)
         oldbalanceOrg = c6.number_input("Old Balance (Sender)", min_value=0.0, value=10000.0)
@@ -76,7 +66,6 @@ def prediction_page(model):
             X_predict = input_data_fe.drop(columns=['nameOrig', 'nameDest', 'isFlaggedFraud', 'step'])
 
             # 4. Prediction
-            # FIX: Use the passed 'model' object for the prediction call
             prediction = model.predict(X_predict)[0] 
             risk_score = model.predict_proba(X_predict)[0][1]
 
@@ -85,14 +74,9 @@ def prediction_page(model):
                 db_generator = get_db()
                 db: Session = next(db_generator)
                 
-                # Create a log entry
                 new_log = PredictionLog(
-                    transaction_type=transaction_type,
-                    amount=amount,
-                    oldbalanceOrg=oldbalanceOrg,
-                    newbalanceOrig=newbalanceOrig,
-                    risk_score=risk_score,
-                    predicted_class=int(prediction)
+                    transaction_type=transaction_type, amount=amount, oldbalanceOrg=oldbalanceOrg, 
+                    newbalanceOrig=newbalanceOrig, risk_score=risk_score, predicted_class=int(prediction)
                 )
                 db.add(new_log)
                 db.commit()

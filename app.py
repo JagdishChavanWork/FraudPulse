@@ -5,6 +5,13 @@ import os
 from datetime import datetime
 import numpy as np
 import altair as alt
+import sys 
+
+# --- CRITICAL FIX: Add project root to path for module discovery ---
+# This fixes the general ImportErrors for 'database' and 'app_modules'
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 # --- MLOPS IMPORTS ---
 from database.database_connector import get_db
@@ -12,8 +19,8 @@ from database.auth_manager import authenticate_user, add_new_employee, update_em
 from sqlalchemy.orm import Session 
 from database.models import PredictionLog, Employee 
 
-# --- CRITICAL FIX: IMPORT MODULED PAGES FROM APP_MODULES ---
-# These imports rely on the functions existing in your app_modules/ files.
+# --- IMPORT MODULED PAGES ---
+# These functions will now load correctly because sys.path is fixed
 from app_modules.dashboard_reports import dashboard_page
 from app_modules.prediction_utility import prediction_page
 from app_modules.admin_management import admin_management_page 
@@ -22,6 +29,7 @@ from app_modules.admin_management import admin_management_page
 # --- CONFIGURATION & MODEL LOADING ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__)) 
 MODEL_NAME = "fraud_detection_deployment_pipeline.pkl"
+# FIX: Use the simple path construction relative to the root
 MODEL_PATH = os.path.join(BASE_DIR, "models", MODEL_NAME)
 
 
@@ -44,19 +52,7 @@ def load_model():
 model = load_model()
 
 
-# --- HELPER FUNCTIONS ---
-
-def feature_engineer_input(input_df: pd.DataFrame) -> pd.DataFrame:
-    """Applies the custom feature engineering logic to raw input data."""
-    
-    input_df["balanceDiffOrig"] = input_df["oldbalanceOrg"] - input_df["newbalanceOrig"]
-    input_df["balanceDiffDest"] = input_df["newbalanceDest"] - input_df["oldbalanceDest"]
-    input_df["is_merchant"] = input_df["nameDest"].str.startswith('M').astype(int)
-    input_df['Orig_Count_1step'] = 0 
-    
-    return input_df
-
-# --- PAGE DEFINITIONS (Integrated) ---
+# --- PAGE DEFINITIONS (Helpers) ---
 
 def login_page():
     """Renders the employee login form (The Authentication Gate)."""
@@ -86,6 +82,7 @@ def login_page():
         else:
             st.error("Invalid username or password.")
 
+
 # --- MAIN APP ENTRY POINT (Login and Navigation Control) ---
 
 def main():
@@ -111,7 +108,6 @@ def main():
     # --- RBAC: Define Available Pages ---
     is_admin = st.session_state.get('is_admin', False)
     
-    # Base set of tabs
     page_options = ["🔍 Real-Time Prediction"]
     
     if is_admin:
@@ -123,10 +119,9 @@ def main():
 
     # --- Conditional Page Rendering ---
     
-    # FIX: Use lambda to correctly pass the global 'model' object where required.
     page_map = {
         "📊 Performance Dashboard": dashboard_page,
-        "🔍 Real-Time Prediction": lambda: prediction_page(model), # CORRECTED CALL
+        "🔍 Real-Time Prediction": lambda: prediction_page(model), 
         "🔐 Admin Management": admin_management_page
     }
 

@@ -1,4 +1,4 @@
-# pages/admin_management.py
+# app_modules/admin_management.py (Complete CRUD UI Logic)
 
 import streamlit as st
 from sqlalchemy.orm import Session
@@ -7,11 +7,9 @@ from database.auth_manager import add_new_employee, update_employee, delete_empl
 from database.models import Employee # Needed for querying
 
 
-# --- Main Admin Page Logic ---
 def admin_management_page():
     
-    # Access the necessary modules (CRUD functions are in auth_manager)
-    # Helper function to get user ID and username from session state
+    # Helper function to get current user ID and username
     def get_current_user_db_details(db: Session):
         username = st.session_state.get('username')
         if username:
