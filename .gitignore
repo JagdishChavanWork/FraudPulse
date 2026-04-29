@@ -8,6 +8,8 @@ __pycache__/
 
 # dataset
 *.csv
+*.xlsx
+*.xls
 
 # Distribution / packaging
 .Python
