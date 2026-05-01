@@ -7,7 +7,6 @@ import sys
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier, VotingClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score, log_loss
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -18,28 +17,26 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from config.settings import CREDIT_MODEL_DATASET
+from config.settings import CREDIT_DASHBOARD_DATASET
 
 
 ARTIFACT_DIR = PROJECT_ROOT / "models" / "credit_risk"
-MODEL_PATH = ARTIFACT_DIR / "approved_flag_classifier.joblib"
-METRICS_PATH = ARTIFACT_DIR / "approved_flag_metrics.json"
-REPORT_PATH = ARTIFACT_DIR / "approved_flag_classification_report.csv"
-CONFUSION_MATRIX_PATH = ARTIFACT_DIR / "approved_flag_confusion_matrix.csv"
+MODEL_PATH = ARTIFACT_DIR / "enhanced_approved_flag_classifier.joblib"
+METRICS_PATH = ARTIFACT_DIR / "enhanced_approved_flag_metrics.json"
+REPORT_PATH = ARTIFACT_DIR / "enhanced_approved_flag_classification_report.csv"
+CONFUSION_MATRIX_PATH = ARTIFACT_DIR / "enhanced_approved_flag_confusion_matrix.csv"
 
 TARGET_COLUMN = "Approved_Flag"
 EXCLUDED_COLUMNS = {
     TARGET_COLUMN,
-    "Max_Credit_Amount",
+    "Risk_Profile",
+    "Income_Bucket",
 }
 
 
-def load_dataset(path: Path = CREDIT_MODEL_DATASET) -> pd.DataFrame:
+def load_dataset(path: Path = CREDIT_DASHBOARD_DATASET) -> pd.DataFrame:
     if not path.exists():
-        raise FileNotFoundError(f"Credit risk model dataset not found: {path}")
-
-    if path.suffix.lower() in {".xlsx", ".xls"}:
-        return pd.read_excel(path)
+        raise FileNotFoundError(f"Enhanced credit dashboard dataset not found: {path}")
     return pd.read_csv(path)
 
 
@@ -51,55 +48,27 @@ def build_model(categorical_features: list[str], numeric_features: list[str]) ->
         ]
     )
 
-    xgb_model = XGBClassifier(
+    classifier = XGBClassifier(
         objective="multi:softprob",
         num_class=4,
-        n_estimators=450,
-        max_depth=4,
-        learning_rate=0.045,
-        subsample=0.9,
+        n_estimators=850,
+        max_depth=5,
+        learning_rate=0.035,
+        subsample=0.92,
         colsample_bytree=0.9,
-        reg_lambda=1.5,
-        reg_alpha=0.05,
+        min_child_weight=2,
+        reg_lambda=1.6,
+        reg_alpha=0.04,
         eval_metric="mlogloss",
         tree_method="hist",
         random_state=42,
         n_jobs=-1,
     )
 
-    random_forest = RandomForestClassifier(
-        n_estimators=350,
-        max_depth=18,
-        min_samples_leaf=2,
-        class_weight="balanced",
-        random_state=42,
-        n_jobs=-1,
-    )
-
-    extra_trees = ExtraTreesClassifier(
-        n_estimators=350,
-        max_depth=18,
-        min_samples_leaf=2,
-        class_weight="balanced",
-        random_state=42,
-        n_jobs=-1,
-    )
-
-    ensemble = VotingClassifier(
-        estimators=[
-            ("xgboost", xgb_model),
-            ("random_forest", random_forest),
-            ("extra_trees", extra_trees),
-        ],
-        voting="soft",
-        weights=[3, 1, 1],
-        n_jobs=-1,
-    )
-
     return Pipeline(
         steps=[
             ("preprocessor", preprocessor),
-            ("classifier", ensemble),
+            ("classifier", classifier),
         ]
     )
 
@@ -107,10 +76,11 @@ def build_model(categorical_features: list[str], numeric_features: list[str]) ->
 def train() -> dict:
     frame = load_dataset()
     feature_columns = [column for column in frame.columns if column not in EXCLUDED_COLUMNS]
-    categorical_features = frame[feature_columns].select_dtypes(include=["object", "category"]).columns.tolist()
+    x = frame[feature_columns].copy()
+
+    categorical_features = x.select_dtypes(include=["object", "category", "bool"]).columns.tolist()
     numeric_features = [column for column in feature_columns if column not in categorical_features]
 
-    x = frame[feature_columns]
     label_encoder = LabelEncoder()
     y = label_encoder.fit_transform(frame[TARGET_COLUMN])
 
@@ -135,6 +105,7 @@ def train() -> dict:
         "rows": int(len(frame)),
         "train_rows": int(len(x_train)),
         "test_rows": int(len(x_test)),
+        "feature_count": len(feature_columns),
         "feature_columns": feature_columns,
         "categorical_features": categorical_features,
         "numeric_features": numeric_features,

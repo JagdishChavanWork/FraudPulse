@@ -1,0 +1,44 @@
+{
+  "target": "Approved_Flag",
+  "classes": [
+    "P1",
+    "P2",
+    "P3",
+    "P4"
+  ],
+  "rows": 32000,
+  "train_rows": 25600,
+  "test_rows": 6400,
+  "feature_columns": [
+    "AGE",
+    "EDUCATION",
+    "GENDER",
+    "MARITALSTATUS",
+    "NETMONTHLYINCOME",
+    "Time_With_Curr_Empr",
+    "Total_TL",
+    "Tot_Active_TL",
+    "Total_TL_opened_L6M",
+    "time_since_recent_enq",
+    "Credit_Band"
+  ],
+  "categorical_features": [
+    "EDUCATION",
+    "GENDER",
+    "MARITALSTATUS"
+  ],
+  "numeric_features": [
+    "AGE",
+    "NETMONTHLYINCOME",
+    "Time_With_Curr_Empr",
+    "Total_TL",
+    "Tot_Active_TL",
+    "Total_TL_opened_L6M",
+    "time_since_recent_enq",
+    "Credit_Band"
+  ],
+  "accuracy": 0.71703125,
+  "macro_f1": 0.7131872063693447,
+  "weighted_f1": 0.7131872063693447,
+  "multiclass_log_loss": 0.7833595878537565
+}

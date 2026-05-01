@@ -1,0 +1,38 @@
+{
+  "target": "Max_Credit_Amount",
+  "rows": 32000,
+  "train_rows": 25600,
+  "test_rows": 6400,
+  "feature_columns": [
+    "AGE",
+    "EDUCATION",
+    "GENDER",
+    "MARITALSTATUS",
+    "NETMONTHLYINCOME",
+    "Time_With_Curr_Empr",
+    "Total_TL",
+    "Tot_Active_TL",
+    "Total_TL_opened_L6M",
+    "time_since_recent_enq",
+    "Credit_Band"
+  ],
+  "categorical_features": [
+    "EDUCATION",
+    "GENDER",
+    "MARITALSTATUS"
+  ],
+  "numeric_features": [
+    "AGE",
+    "NETMONTHLYINCOME",
+    "Time_With_Curr_Empr",
+    "Total_TL",
+    "Tot_Active_TL",
+    "Total_TL_opened_L6M",
+    "time_since_recent_enq",
+    "Credit_Band"
+  ],
+  "mae": 2716.72957101756,
+  "rmse": 6026.870995959629,
+  "r2": 0.9999280175907141,
+  "mape_percent": 740.0598158492691
+}
