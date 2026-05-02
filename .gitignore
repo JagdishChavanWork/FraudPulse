@@ -10,6 +10,9 @@ __pycache__/
 *.csv
 *.xlsx
 *.xls
+!data/processed/Dashboard_Data_Enhanced.csv
+!data/processed/credit_risk_dataset_with_bands.xlsx
+!data/processed/fraud_dataset_v2.csv
 
 # Distribution / packaging
 .Python
@@ -212,3 +215,7 @@ marimo/_lsp/
 __marimo__/
 
 *.joblib
+!models/credit_limit/max_credit_amount_regressor.joblib
+!models/credit_risk/enhanced_approved_flag_classifier.joblib
+!models/fraud/fraud_scaler.joblib
+!models/fraud/fraud_xgb_classifier.joblib

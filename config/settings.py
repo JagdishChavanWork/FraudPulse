@@ -18,3 +18,4 @@ DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DATABASE_PATH}")
 
 CREDIT_DASHBOARD_DATASET = PROCESSED_DATA_DIR / "Dashboard_Data_Enhanced.csv"
 CREDIT_MODEL_DATASET = PROCESSED_DATA_DIR / "credit_risk_dataset_with_bands.xlsx"
+FRAUD_DATASET = PROCESSED_DATA_DIR / "fraud_dataset_v2.csv"

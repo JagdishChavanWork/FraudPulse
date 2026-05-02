@@ -4,10 +4,12 @@ matplotlib==3.10.7
 seaborn==0.13.2
 jupyter==1.1.1
 scikit-learn==1.7.2
+imbalanced-learn==0.14.0
 streamlit==1.51.0
 xgboost==3.1.2
 altair == 5.5.0
 sqlalchemy==2.0.44
+psycopg2-binary==2.9.10
 bcrypt==5.0.0
 python-dotenv==1.2.1
 openpyxl==3.1.5

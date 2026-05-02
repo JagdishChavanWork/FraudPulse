@@ -1,6 +1,7 @@
 import streamlit as st
 
 from config.settings import APP_NAME
+from database.init_db import initialize_database
 from modules.auth.Login import render_login_page
 from modules.auth.session_manager import get_current_employee, logout_employee
 from modules.common.sidebar import render_sidebar
@@ -28,6 +29,7 @@ PAGE_RENDERERS = {
 
 
 def main() -> None:
+    initialize_database()
     inject_global_styles()
 
     employee = get_current_employee()

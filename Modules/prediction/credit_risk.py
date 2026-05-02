@@ -4,7 +4,9 @@ import streamlit as st
 from config.settings import CREDIT_DASHBOARD_DATASET
 from ml.credit_limit.predict import predict_max_credit_amount
 from ml.credit_risk.predict import ENHANCED_MODEL_PATH, load_artifact, predict_enhanced_approved_flag
+from modules.auth.session_manager import get_current_employee
 from modules.common.ui_helpers import page_header
+from modules.services.prediction_log_service import log_prediction
 
 
 PRODUCT_VALUES = ["AL", "CC", "ConsumerLoan", "HL", "PL", "others"]
@@ -242,9 +244,24 @@ def render_credit_prediction() -> None:
                 "has_gold_loan": has_gold_loan,
             }
             try:
-                result = predict_enhanced_approved_flag(_build_prediction_payload(values))
-                amount_result = predict_max_credit_amount(
-                    _build_amount_payload(values, result["predicted_approved_flag"])
+                employee = get_current_employee() or {}
+                prediction_payload = _build_prediction_payload(values)
+                result = predict_enhanced_approved_flag(prediction_payload)
+                amount_payload = _build_amount_payload(values, result["predicted_approved_flag"])
+                amount_result = predict_max_credit_amount(amount_payload)
+                log_prediction(
+                    employee.get("employee_id"),
+                    "credit_risk_prediction",
+                    prediction_payload,
+                    result["predicted_approved_flag"],
+                    result["confidence"],
+                )
+                log_prediction(
+                    employee.get("employee_id"),
+                    "max_credit_amount_regression",
+                    amount_payload,
+                    str(amount_result["rounded_max_credit_amount"]),
+                    amount_result["max_credit_amount"],
                 )
                 st.metric("Predicted approval category", result["predicted_approved_flag"])
                 st.metric("Model confidence", f"{result['confidence'] * 100:.1f}%")

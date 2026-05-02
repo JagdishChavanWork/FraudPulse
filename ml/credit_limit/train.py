@@ -8,12 +8,11 @@ import joblib
 import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import ExtraTreesRegressor, RandomForestRegressor, VotingRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
-from xgboost import XGBRegressor
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
@@ -50,50 +49,18 @@ def build_model(categorical_features: list[str], numeric_features: list[str]) ->
         ]
     )
 
-    xgb_model = XGBRegressor(
-        objective="reg:squarederror",
-        n_estimators=650,
-        max_depth=5,
-        learning_rate=0.035,
-        subsample=0.92,
-        colsample_bytree=0.9,
-        reg_lambda=1.4,
-        reg_alpha=0.03,
+    regressor = HistGradientBoostingRegressor(
+        max_iter=320,
+        learning_rate=0.06,
+        max_leaf_nodes=31,
+        l2_regularization=0.08,
         random_state=42,
-        n_jobs=-1,
-        tree_method="hist",
-    )
-
-    random_forest = RandomForestRegressor(
-        n_estimators=300,
-        max_depth=20,
-        min_samples_leaf=2,
-        random_state=42,
-        n_jobs=-1,
-    )
-
-    extra_trees = ExtraTreesRegressor(
-        n_estimators=300,
-        max_depth=20,
-        min_samples_leaf=2,
-        random_state=42,
-        n_jobs=-1,
-    )
-
-    ensemble = VotingRegressor(
-        estimators=[
-            ("xgboost", xgb_model),
-            ("random_forest", random_forest),
-            ("extra_trees", extra_trees),
-        ],
-        weights=[3, 1, 1],
-        n_jobs=-1,
     )
 
     return Pipeline(
         steps=[
             ("preprocessor", preprocessor),
-            ("regressor", ensemble),
+            ("regressor", regressor),
         ]
     )
 
@@ -131,6 +98,7 @@ def train() -> dict:
         "feature_columns": feature_columns,
         "categorical_features": categorical_features,
         "numeric_features": numeric_features,
+        "model_type": "HistGradientBoostingRegressor",
         "mae": mae,
         "rmse": rmse,
         "r2": r2,

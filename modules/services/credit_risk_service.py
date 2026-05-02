@@ -1,5 +1,6 @@
 import pandas as pd
 
+from config.settings import CREDIT_DASHBOARD_DATASET, CREDIT_MODEL_DATASET
 from database.connection import engine
 
 
@@ -39,7 +40,32 @@ def get_credit_risk_data() -> pd.DataFrame:
         FROM credit_risk_data
         ORDER BY id DESC
     """
-    return pd.read_sql_query(query, con=engine)
+    try:
+        frame = pd.read_sql_query(query, con=engine)
+    except Exception:
+        frame = pd.DataFrame()
+
+    if frame.empty and CREDIT_MODEL_DATASET.exists():
+        source = pd.read_excel(CREDIT_MODEL_DATASET) if CREDIT_MODEL_DATASET.suffix.lower() in {".xlsx", ".xls"} else pd.read_csv(CREDIT_MODEL_DATASET)
+        column_map = {
+            "AGE": "age",
+            "EDUCATION": "education",
+            "GENDER": "gender",
+            "MARITALSTATUS": "marital_status",
+            "NETMONTHLYINCOME": "net_monthly_income",
+            "Time_With_Curr_Empr": "time_with_current_employer",
+            "Total_TL": "total_tradelines",
+            "Tot_Active_TL": "active_tradelines",
+            "Total_TL_opened_L6M": "tradelines_opened_last_6m",
+            "time_since_recent_enq": "time_since_recent_enquiry",
+            "Approved_Flag": "approved_flag",
+            "Credit_Band": "credit_band",
+            "Max_Credit_Amount": "max_credit_amount",
+        }
+        available = [column for column in column_map if column in source.columns]
+        frame = source[available].rename(columns=column_map)
+
+    return frame
 
 
 def get_credit_dashboard_enhanced_data() -> pd.DataFrame:
@@ -91,7 +117,67 @@ def get_credit_dashboard_enhanced_data() -> pd.DataFrame:
         FROM credit_risk_dashboard_enhanced
         ORDER BY id DESC
     """
-    return pd.read_sql_query(query, con=engine)
+    try:
+        frame = pd.read_sql_query(query, con=engine)
+    except Exception:
+        frame = pd.DataFrame()
+
+    if frame.empty and CREDIT_DASHBOARD_DATASET.exists():
+        source = pd.read_csv(CREDIT_DASHBOARD_DATASET)
+        column_map = {
+            "pct_tl_open_L6M": "pct_tl_open_l6m",
+            "pct_tl_closed_L6M": "pct_tl_closed_l6m",
+            "Tot_TL_closed_L12M": "total_tl_closed_l12m",
+            "pct_tl_closed_L12M": "pct_tl_closed_l12m",
+            "Tot_Missed_Pmnt": "total_missed_payments",
+            "CC_TL": "cc_tradelines",
+            "Home_TL": "home_tradelines",
+            "PL_TL": "personal_loan_tradelines",
+            "Secured_TL": "secured_tradelines",
+            "Unsecured_TL": "unsecured_tradelines",
+            "Other_TL": "other_tradelines",
+            "Age_Oldest_TL": "age_oldest_tradeline",
+            "Age_Newest_TL": "age_newest_tradeline",
+            "time_since_recent_payment": "time_since_recent_payment",
+            "max_recent_level_of_deliq": "max_recent_delinquency_level",
+            "num_deliq_6_12mts": "delinquencies_6_12m",
+            "num_times_60p_dpd": "times_60p_dpd",
+            "num_std_12mts": "standard_accounts_12m",
+            "num_sub": "substandard_accounts",
+            "num_sub_6mts": "substandard_accounts_6m",
+            "num_sub_12mts": "substandard_accounts_12m",
+            "num_dbt": "doubtful_accounts",
+            "num_dbt_12mts": "doubtful_accounts_12m",
+            "num_lss": "loss_accounts",
+            "recent_level_of_deliq": "recent_delinquency_level",
+            "CC_enq_L12m": "cc_enquiries_12m",
+            "PL_enq_L12m": "pl_enquiries_12m",
+            "time_since_recent_enq": "time_since_recent_enquiry",
+            "enq_L3m": "enquiries_l3m",
+            "NETMONTHLYINCOME": "net_monthly_income",
+            "Time_With_Curr_Empr": "time_with_current_employer",
+            "CC_Flag": "has_credit_card",
+            "PL_Flag": "has_personal_loan",
+            "HL_Flag": "has_home_loan",
+            "GL_Flag": "has_gold_loan",
+            "EDUCATION": "education_code",
+            "Approved_Flag": "approved_flag",
+            "Income_Bucket": "income_bucket",
+            "Risk_Profile": "risk_profile",
+        }
+        available = [column for column in column_map if column in source.columns]
+        frame = source[available].rename(columns=column_map)
+        for prefix, output in [
+            ("MARITALSTATUS", "marital_status"),
+            ("GENDER", "gender"),
+            ("last_prod_enq2", "last_product_enquiry"),
+            ("first_prod_enq2", "first_product_enquiry"),
+        ]:
+            matching = [column for column in source.columns if column.startswith(f"{prefix}_")]
+            if matching:
+                frame[output] = source[matching].idxmax(axis=1).str.replace(f"{prefix}_", "", regex=False)
+
+    return frame
 
 
 def get_enhanced_prediction_records(limit: int = 250) -> pd.DataFrame:

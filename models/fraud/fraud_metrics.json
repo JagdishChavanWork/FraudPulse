@@ -1,0 +1,81 @@
+{
+  "model_type": "XGBClassifier",
+  "rows": 70000,
+  "train_rows": 56000,
+  "test_rows": 14000,
+  "smote_applied": true,
+  "feature_count": 22,
+  "feature_columns": [
+    "age",
+    "city_tier",
+    "tenure_days",
+    "account_balance",
+    "avg_monthly_spend",
+    "avg_txn_amount",
+    "avg_txn_per_day",
+    "usual_txn_hour",
+    "txn_amount",
+    "txn_hour",
+    "txn_day_of_week",
+    "is_weekend",
+    "amount_to_avg_ratio",
+    "balance_drain_pct",
+    "hour_anomaly",
+    "velocity_24hr",
+    "new_txn_type_flag",
+    "large_round_amt_flag",
+    "days_since_last_txn",
+    "prior_fraud_complaint",
+    "account_type_enc",
+    "txn_type_enc"
+  ],
+  "threshold": 0.5,
+  "fraud_precision": 0.9988109393579072,
+  "fraud_recall": 1.0,
+  "fraud_f1": 0.9994051160023796,
+  "roc_auc": 1.0,
+  "threshold_tuning": [
+    {
+      "threshold": 0.3,
+      "precision": 0.997624703087886,
+      "recall": 1.0,
+      "f1": 0.9988109393579072
+    },
+    {
+      "threshold": 0.35,
+      "precision": 0.997624703087886,
+      "recall": 1.0,
+      "f1": 0.9988109393579072
+    },
+    {
+      "threshold": 0.4,
+      "precision": 0.997624703087886,
+      "recall": 1.0,
+      "f1": 0.9988109393579072
+    },
+    {
+      "threshold": 0.45,
+      "precision": 0.9984152139461173,
+      "recall": 1.0,
+      "f1": 0.9992069785884219
+    },
+    {
+      "threshold": 0.5,
+      "precision": 0.9988109393579072,
+      "recall": 1.0,
+      "f1": 0.9994051160023796
+    },
+    {
+      "threshold": 0.55,
+      "precision": 0.9988109393579072,
+      "recall": 1.0,
+      "f1": 0.9994051160023796
+    },
+    {
+      "threshold": 0.6,
+      "precision": 0.9988109393579072,
+      "recall": 1.0,
+      "f1": 0.9994051160023796
+    }
+  ]
+}

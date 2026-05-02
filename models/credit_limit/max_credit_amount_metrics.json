@@ -31,8 +31,9 @@
     "time_since_recent_enq",
     "Credit_Band"
   ],
-  "mae": 2716.72957101756,
-  "rmse": 6026.870995959629,
-  "r2": 0.9999280175907141,
-  "mape_percent": 740.0598158492691
+  "model_type": "HistGradientBoostingRegressor",
+  "mae": 3772.0038999329076,
+  "rmse": 10751.527453793839,
+  "r2": 0.9997709222420545,
+  "mape_percent": 396.07643400061977
 }

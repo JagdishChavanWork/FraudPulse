@@ -1,0 +1,14 @@
+Do not generate the document from assumptions. Inspect the current codebase, folder structure, dashboard charts, and Version 1 documents first, then write the updated Phase 2 document from evidence.
+
+Create a professional Canva presentation for "Fraud Pulse Phase_2: AI-Driven Credit Risk and Fraud Intelligence Platform". Maximum 10 slides. Use the FraudPulse application color theme: primary teal #1f7a7a, dark teal #176568, navy #1f3444, light background #f6f8fa, white cards #ffffff, border grey #d9e2ea, muted text #6b7a86, risk red #d85b5b, warning amber #b7791f, success green #218568. Use clean academic/business design suitable for MCA faculty review and project demonstration. Avoid generic startup language.
+
+Slide 1 - Title: Fraud Pulse Phase_2. Subtitle: Unified Analyst Platform for Credit Risk, Fraud Intelligence, Secure Prediction Logging, and Streamlit Deployment Readiness.
+Slide 2 - Problem Statement: disconnected credit and fraud review, manual analyst effort, limited auditability, and need for dashboard-backed decision support.
+Slide 3 - Solution Overview: four modules - Credit Risk Dashboard, Credit Risk Prediction, Fraud Detection Dashboard, Fraud Detection Prediction - with authentication and prediction logging.
+Slide 4 - System Architecture: Streamlit UI -> service layer -> ML model layer -> SQLite/Postgres database -> processed datasets. Show app.py, modules, ml, models, database, scripts.
+Slide 5 - Credit Risk Dashboard: Applicant Records, Average Income, Average Age, Avg Max Credit, approval and credit-band charts, income and max-credit distributions, risk story charts, segment charts.
+Slide 6 - Credit Prediction and Max Credit Regression: analyst input -> preprocessing/default payload -> enhanced classifier -> class probabilities -> compact max-credit regressor -> output -> prediction_logs.
+Slide 7 - Fraud Dashboard Analytics: Total Cases, Fraud Cases, Fraud Rate, Avg Fraud Amount, fraud by transaction type, age group, hour, city tier, heatmap, distributions, balance drain, velocity, fraud type, feature importance.
+Slide 8 - Live Fraud Prediction: profile + baseline + transaction + flags -> derived features -> scaler + XGBoost -> probability, threshold, risk badge, verdict -> prediction_logs.
+Slide 9 - Database, Security, Audit: employees, credit_risk_data, credit_risk_dashboard_enhanced, fraud_detection_data, prediction_logs, bcrypt login, SQLAlchemy, SQLite local, Postgres for deployed persistence.
+Slide 10 - Deployment Readiness and Future Scope: locally working; compact model fixed; remaining needs Postgres DATABASE_URL, avoid old >100MB model, Linux smoke test, credential hardening, RBAC, prediction log dashboard, drift monitoring.
