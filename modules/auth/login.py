@@ -34,7 +34,7 @@ def render_login_page() -> None:
             """
             <div class="login-panel-header">
                 <div class="login-brand">
-                    <span>FraudPulse</span>
+                    <span>Finlntel</span>
                 </div>
                 <div class="login-copy">Analyst login</div>
             </div>

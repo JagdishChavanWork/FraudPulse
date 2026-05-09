@@ -1,4 +1,4 @@
-# FraudPulse Phase 2 Dataset Explanation
+# Finlntel Phase 2 Dataset Explanation
 
 ## 1. Credit Risk Dataset With Bands
 

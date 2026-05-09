@@ -1,70 +1,55 @@
-# 🚀 FraudPulse: Advanced Fraud Detection & Data-Driven Insights
+# Finlntel: Banking Risk Intelligence Platform
 
 ## Overview
 
-Welcome to the **FraudPulse Fraud Detection Platform**!  
-This repository combines expert business analysis with robust data science practices to deliver a comprehensive solution for identifying suspicious financial transactions. Designed and developed by a practitioner proficient in business requirements gathering and analytical modeling, FraudPulse provides not only state-of-the-art machine learning fraud prediction but also deep exploratory insights into transaction data.
+Finlntel is a Streamlit-based banking risk intelligence application for analyst-assisted decision support. The platform combines credit risk analytics, credit approval prediction, maximum credit amount estimation, fraud dashboarding, fraud prediction, authentication, database integration, and prediction logging.
 
----
+## Current Modules
 
-## Key Features & Modules
-
-- **Business Analysis-Driven Data Exploration**
-  - Initial dataset audit (`.head()`, `.info()`, null checks, column overview)
-  - Quantitative and qualitative summary of fraud versus non-fraud transactions
-  - Visual analytics: transaction type distributions, temporal fraud patterns, sender/receiver ranking, and correlation heatmaps
-
-- **Data Transformation & Feature Engineering**
-  - Derivation of new features for financial behavior, including balance differentials and transaction type impact
-  - Fraud-specific subsetting and segmentation for advanced analysis
-
-- **Model Building: End-to-End Pipeline**
-  - Automated preprocessing with column transformations (scaling & one-hot encoding)
-  - Class imbalance handled via Logistic Regression (`class_weight="balanced"`)
-  - Best practices applied: stratified train/test split, diagnostic reports (`classification_report`, `confusion_matrix`)
-
-- **Interactive Fraud Prediction App**
-  - Seamless deployment with Streamlit for real-time risk assessment
-  - User inputs for transaction properties, instant feedback on fraud likelihood
-  - Professional UI mimicking real-world banking workflows
-  - Exported model: `fraud_detection_pipeline.pkl` for scalable, reproducible ML operations
-
----
+- **Management Insights**
+  - Credit Risk Dashboard
+  - Fraud Dashboard
+- **Credit Risk Prediction**
+  - Approval category prediction
+  - Maximum credit amount regression
+  - Prediction logging
+- **Fraud Detection Prediction**
+  - Live fraud checker
+  - Auto-calculated anomaly features
+  - Risk level and verdict display
+  - Prediction logging
+- **Authentication**
+  - Employee login
+  - Bcrypt password verification
+  - Streamlit session management
 
 ## Tech Stack
 
-- **Python** (pandas, numpy, sklearn, seaborn, matplotlib)
-- **Streamlit** (modern web app interface for prediction)
-- **Machine Learning** (Logistic Regression with pipeline engineering)
-- **Business Analysis & Data Visualization** (end-to-end EDA and insight generation)
+- Python
+- Streamlit
+- pandas, NumPy
+- scikit-learn
+- XGBoost
+- imbalanced-learn
+- Plotly
+- SQLAlchemy
+- SQLite locally, with `DATABASE_URL` support for external databases
+- bcrypt
 
----
+## Run Locally
 
-## Demo
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
 
-![App Screenshot](app_screenshot.png)
-> **Real-time analytics, actionable scores, and explainable model outputs—in one intuitive dashboard.**
+Default local demo login:
 
----
+```text
+Employee ID: ANL001
+Password: FraudPulse@123
+```
 
-## Getting Started
+## Deployment Notes
 
-1. **Clone the Repository**
-2. **Install Dependencies:**  
-   `pip install -r requirements.txt`
-3. **Launch the FraudPulse App:**  
-   `streamlit run fraud_detection.py`
-
----
-
-## Business Impact & Developer Profile
-
-This solution exemplifies a **business-first approach to data science**, transforming raw transactional logs into interpretable insights and predictive capabilities.  
-The developer possesses proven expertise in:  
-- *Business Requirement Documentation & Analytical Modeling*
-- *Cross-functional Collaboration (Engineering, Product, Data)*
-- *Building Data Apps for Real-World Use Cases*
-
-
-> **FraudPulse: Where Business Intuition Meets Analytical Excellence**
-
+For Streamlit Cloud, keep required model artifacts and processed datasets available in the repository or use external storage. Use a persistent database such as PostgreSQL through `DATABASE_URL` if prediction logs must survive app restarts.

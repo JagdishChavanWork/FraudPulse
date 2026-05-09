@@ -2,7 +2,6 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from ml.fraud.predict import IMPORTANCE_PATH
 from modules.common.charts import COLOR_SEQUENCE, apply_chart_theme
 from modules.common.ui_helpers import format_currency, format_number, kpi_card, page_header
 from modules.services.fraud_service import FRAUD_DISPLAY_COLUMNS, apply_fraud_filters, get_fraud_data
@@ -186,18 +185,9 @@ def _render_pattern_analysis(frame: pd.DataFrame) -> None:
         st.plotly_chart(apply_chart_theme(fig), use_container_width=True)
         _chart_note("Shows how repeated transaction attempts support fraud investigation.")
 
-    col5, col6 = st.columns([0.75, 1.25])
-    with col5:
-        fig = px.pie(fraud_only, names="fraud_type", title="Fraud Cases by Pattern Type", color_discrete_sequence=COLOR_SEQUENCE)
-        st.plotly_chart(apply_chart_theme(fig), use_container_width=True)
-        _chart_note("Summarizes the main fraud patterns found in the selected records.")
-    with col6:
-        st.subheader("Model Feature Importance")
-        if IMPORTANCE_PATH.exists():
-            importance = pd.read_csv(IMPORTANCE_PATH).head(12)
-            st.dataframe(importance, use_container_width=True, hide_index=True)
-        else:
-            st.info("Train the fraud model to show feature importance: python ml\\fraud\\train.py")
+    fig = px.pie(fraud_only, names="fraud_type", title="Fraud Cases by Pattern Type", color_discrete_sequence=COLOR_SEQUENCE)
+    st.plotly_chart(apply_chart_theme(fig), use_container_width=True)
+    _chart_note("Summarizes the main fraud patterns found in the selected records for management-level review.")
 
 
 def _render_case_lookup(frame: pd.DataFrame) -> None:

@@ -13,7 +13,7 @@ from modules.prediction.fraud_detection import render_fraud_prediction
 
 st.set_page_config(
     page_title=APP_NAME,
-    page_icon="FP",
+    page_icon="FI",
     layout="wide",
     initial_sidebar_state="expanded",
 )

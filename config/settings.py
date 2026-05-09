@@ -12,7 +12,7 @@ PROCESSED_DATA_DIR = DATA_DIR / "processed"
 DATABASE_DIR = BASE_DIR / "database"
 DATABASE_PATH = DATABASE_DIR / "fraudpulse.db"
 
-APP_NAME = "FraudPulse"
+APP_NAME = "Finlntel"
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DATABASE_PATH}")
 
