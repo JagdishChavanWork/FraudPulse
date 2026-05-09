@@ -103,11 +103,16 @@ def _render_story_kpis(frame: pd.DataFrame) -> None:
         kpi_card("Avg L3M Enquiries", f"{avg_enquiries:.2f}", f"Unsecured mix {unsecured_share:.1f}%")
 
 
-def render_credit_dashboard() -> None:
-    page_header(
-        "Credit Risk Analysis",
-        "Database-backed portfolio view for approval bands, credit bands, income, tenure, and credit amount allocation.",
-    )
+def _chart_note(text: str) -> None:
+    st.caption(f"Insight: {text}")
+
+
+def render_credit_dashboard(show_header: bool = True) -> None:
+    if show_header:
+        page_header(
+            "Credit Risk Dashboard",
+            "Portfolio view of applicant approvals, credit bands, income strength, repayment pressure, and recommended credit exposure.",
+        )
 
     frame = get_credit_risk_data()
     enhanced_frame = get_credit_dashboard_enhanced_data()
@@ -131,15 +136,19 @@ def render_credit_dashboard() -> None:
     with portfolio_tab:
         col1, col2 = st.columns(2)
         with col1:
-            st.plotly_chart(count_bar(filtered, "approved_flag", "ApprovedFlag distribution"), use_container_width=True)
+            st.plotly_chart(count_bar(filtered, "approved_flag", "Applicants by Approval Category", "Approval Category"), use_container_width=True)
+            _chart_note("Shows how many applicants fall into each approval category.")
         with col2:
-            st.plotly_chart(count_bar(filtered, "credit_band", "CreditBand distribution"), use_container_width=True)
+            st.plotly_chart(count_bar(filtered, "credit_band", "Applicants by Credit Band", "Credit Band"), use_container_width=True)
+            _chart_note("Shows how applicants are grouped by credit eligibility band.")
 
         col3, col4 = st.columns(2)
         with col3:
-            st.plotly_chart(histogram(filtered, "net_monthly_income", "Net monthly income distribution"), use_container_width=True)
+            st.plotly_chart(histogram(filtered, "net_monthly_income", "Applicant Monthly Income Distribution", x_label="Net Monthly Income"), use_container_width=True)
+            _chart_note("Shows the income range of applicants.")
         with col4:
-            st.plotly_chart(histogram(filtered, "max_credit_amount", "Maximum credit amount distribution"), use_container_width=True)
+            st.plotly_chart(histogram(filtered, "max_credit_amount", "Recommended Maximum Credit Amount Distribution", x_label="Maximum Credit Amount"), use_container_width=True)
+            _chart_note("Shows the spread of recommended credit exposure.")
 
     with story_tab:
         if enhanced_filtered.empty:
@@ -150,40 +159,52 @@ def render_credit_dashboard() -> None:
 
             col1, col2 = st.columns(2)
             with col1:
-                st.plotly_chart(count_bar(enhanced_filtered, "risk_profile", "Risk profile distribution"), use_container_width=True)
+                st.plotly_chart(count_bar(enhanced_filtered, "risk_profile", "Customers by Risk Profile", "Risk Profile"), use_container_width=True)
+                _chart_note("Summarizes customers into risk groups.")
             with col2:
-                st.plotly_chart(count_bar(enhanced_filtered, "income_bucket", "Income bucket distribution"), use_container_width=True)
+                st.plotly_chart(count_bar(enhanced_filtered, "income_bucket", "Customers by Income Group", "Income Group"), use_container_width=True)
+                _chart_note("Shows customer affordability groups.")
 
             col3, col4 = st.columns(2)
             with col3:
-                st.plotly_chart(box_by_category(enhanced_filtered, "risk_profile", "total_missed_payments", "Missed payments by risk profile"), use_container_width=True)
+                st.plotly_chart(box_by_category(enhanced_filtered, "risk_profile", "total_missed_payments", "Missed Payments by Risk Profile", "Risk Profile", "Total Missed Payments"), use_container_width=True)
+                _chart_note("Compares repayment problems across risk profiles.")
             with col4:
-                st.plotly_chart(box_by_category(enhanced_filtered, "approved_flag", "enquiries_l3m", "Recent enquiries by approval class"), use_container_width=True)
+                st.plotly_chart(box_by_category(enhanced_filtered, "approved_flag", "enquiries_l3m", "Recent Credit Enquiries by Approval Category", "Approval Category", "Enquiries in Last 3 Months"), use_container_width=True)
+                _chart_note("Shows whether applicants recently searched for more credit.")
 
             col5, col6 = st.columns(2)
             with col5:
-                st.plotly_chart(count_bar(enhanced_filtered, "last_product_enquiry", "Last product enquiry"), use_container_width=True)
+                st.plotly_chart(count_bar(enhanced_filtered, "last_product_enquiry", "Last Product Enquired by Customers", "Product Type"), use_container_width=True)
+                _chart_note("Shows which banking product customers most recently enquired about.")
             with col6:
-                st.plotly_chart(scatter_segment(enhanced_filtered, "net_monthly_income", "total_missed_payments", "risk_profile", "Income vs missed payments"), use_container_width=True)
+                st.plotly_chart(scatter_segment(enhanced_filtered, "net_monthly_income", "total_missed_payments", "risk_profile", "Income vs Missed Payments", "Net Monthly Income", "Total Missed Payments"), use_container_width=True)
+                _chart_note("Shows repayment stress across income levels.")
 
     with segment_tab:
         col1, col2 = st.columns(2)
         with col1:
-            st.plotly_chart(count_bar(filtered, "education", "Education distribution"), use_container_width=True)
+            st.plotly_chart(count_bar(filtered, "education", "Applicants by Education Level", "Education Level"), use_container_width=True)
+            _chart_note("Shows the education mix of selected applicants.")
         with col2:
-            st.plotly_chart(count_bar(filtered, "gender", "Gender split"), use_container_width=True)
+            st.plotly_chart(count_bar(filtered, "gender", "Applicants by Gender", "Gender"), use_container_width=True)
+            _chart_note("Shows the gender composition of selected applicants.")
 
         col3, col4 = st.columns(2)
         with col3:
-            st.plotly_chart(count_bar(filtered, "marital_status", "Marital status split"), use_container_width=True)
+            st.plotly_chart(count_bar(filtered, "marital_status", "Applicants by Marital Status", "Marital Status"), use_container_width=True)
+            _chart_note("Shows the household profile distribution.")
         with col4:
-            st.plotly_chart(box_by_category(filtered, "approved_flag", "active_tradelines", "Active tradelines by approval class"), use_container_width=True)
+            st.plotly_chart(box_by_category(filtered, "approved_flag", "active_tradelines", "Active Credit Lines by Approval Category", "Approval Category", "Active Credit Lines"), use_container_width=True)
+            _chart_note("Shows active credit relationships by approval category.")
 
         col5, col6 = st.columns(2)
         with col5:
-            st.plotly_chart(scatter_segment(filtered, "age", "net_monthly_income", "approved_flag", "Income vs age by approval class"), use_container_width=True)
+            st.plotly_chart(scatter_segment(filtered, "age", "net_monthly_income", "approved_flag", "Applicant Age vs Monthly Income", "Applicant Age", "Net Monthly Income"), use_container_width=True)
+            _chart_note("Shows approval categories across age and income.")
         with col6:
-            st.plotly_chart(box_by_category(filtered, "credit_band", "max_credit_amount", "Max credit amount by credit band"), use_container_width=True)
+            st.plotly_chart(box_by_category(filtered, "credit_band", "max_credit_amount", "Maximum Credit Amount by Credit Band", "Credit Band", "Maximum Credit Amount"), use_container_width=True)
+            _chart_note("Explains how recommended exposure changes across credit bands.")
 
     with records_tab:
         display = filtered.rename(columns=CREDIT_DISPLAY_COLUMNS)

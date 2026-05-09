@@ -2,12 +2,11 @@ import streamlit as st
 
 from config.settings import APP_NAME
 from database.init_db import initialize_database
-from modules.auth.Login import render_login_page
+from modules.auth.login import render_login_page
 from modules.auth.session_manager import get_current_employee, logout_employee
 from modules.common.sidebar import render_sidebar
 from modules.common.ui_helpers import inject_global_styles
-from modules.dashboard.credit_dashboard import render_credit_dashboard
-from modules.dashboard.fraud_dashboard import render_fraud_dashboard
+from modules.dashboard.management_insights import render_management_insights
 from modules.prediction.credit_risk import render_credit_prediction
 from modules.prediction.fraud_detection import render_fraud_prediction
 
@@ -21,9 +20,8 @@ st.set_page_config(
 
 
 PAGE_RENDERERS = {
-    "Credit Risk Dashboard": render_credit_dashboard,
+    "Management Insights": render_management_insights,
     "Credit Risk Prediction": render_credit_prediction,
-    "Fraud Detection Dashboard": render_fraud_dashboard,
     "Fraud Detection Prediction": render_fraud_prediction,
 }
 

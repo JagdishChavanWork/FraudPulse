@@ -15,6 +15,10 @@ def _safe_rate(numerator: pd.Series, denominator: pd.Series | int) -> float:
     return 0.0 if total == 0 else float(numerator.sum() / total)
 
 
+def _chart_note(text: str) -> None:
+    st.caption(f"Insight: {text}")
+
+
 def _render_filters(frame: pd.DataFrame) -> pd.DataFrame:
     with st.expander("Filters", expanded=True):
         col1, col2, col3 = st.columns(3)
@@ -56,21 +60,28 @@ def _fraud_vs_legit_by_type(frame: pd.DataFrame):
         title="Fraud vs legitimate cases by transaction type",
         color_discrete_map={"Fraud": "#d85b5b", "Legitimate": "#1f7a7a"},
     )
+    fig.update_layout(title="Fraud and Genuine Transactions by Payment Type")
+    fig.update_xaxes(title_text="Payment / Transaction Type")
+    fig.update_yaxes(title_text="Number of Transactions")
     return apply_chart_theme(fig)
 
 
 def _fraud_rate_by_hour(frame: pd.DataFrame):
     grouped = frame.groupby("txn_hour")["is_fraud"].mean().reset_index()
     grouped["fraud_rate"] = grouped["is_fraud"] * 100
-    fig = px.line(grouped, x="txn_hour", y="fraud_rate", markers=True, title="Fraud rate by hour of day")
+    fig = px.line(grouped, x="txn_hour", y="fraud_rate", markers=True, title="Fraud Rate by Transaction Hour")
     fig.update_traces(line_color="#d85b5b")
+    fig.update_xaxes(title_text="Hour of Day")
+    fig.update_yaxes(title_text="Fraud Rate (%)")
     return apply_chart_theme(fig)
 
 
 def _fraud_rate_by_city(frame: pd.DataFrame):
     grouped = frame.groupby("city_tier")["is_fraud"].mean().reset_index()
     grouped["fraud_rate"] = grouped["is_fraud"] * 100
-    fig = px.bar(grouped, x="city_tier", y="fraud_rate", title="Fraud rate by city tier", color_discrete_sequence=["#f2b84b"])
+    fig = px.bar(grouped, x="city_tier", y="fraud_rate", title="Fraud Rate by City Tier", color_discrete_sequence=["#f2b84b"])
+    fig.update_xaxes(title_text="City Tier")
+    fig.update_yaxes(title_text="Fraud Rate (%)")
     return apply_chart_theme(fig)
 
 
@@ -82,9 +93,11 @@ def _account_txn_heatmap(frame: pd.DataFrame):
         matrix,
         text_auto=".1f",
         aspect="auto",
-        title="Fraud rate heatmap: account type vs transaction type",
+        title="Fraud Rate by Account Type and Transaction Type",
         color_continuous_scale=["#eef5f7", "#f2b84b", "#d85b5b"],
     )
+    fig.update_xaxes(title_text="Transaction Type")
+    fig.update_yaxes(title_text="Account Type")
     return apply_chart_theme(fig, height=360)
 
 
@@ -95,18 +108,23 @@ def _render_overview(frame: pd.DataFrame) -> None:
     col1, col2 = st.columns([1.35, 0.65])
     with col1:
         st.plotly_chart(_fraud_vs_legit_by_type(frame), use_container_width=True)
+        _chart_note("Compares genuine and fraudulent transactions for each payment channel.")
     with col2:
         fraud_only = frame[frame["is_fraud"].astype(int).eq(1)]
-        fig = px.pie(fraud_only, names="age_group", title="Fraud distribution by age group", color_discrete_sequence=COLOR_SEQUENCE)
+        fig = px.pie(fraud_only, names="age_group", title="Fraud Cases by Customer Age Group", color_discrete_sequence=COLOR_SEQUENCE)
         st.plotly_chart(apply_chart_theme(fig), use_container_width=True)
+        _chart_note("Shows which customer age groups are most represented in fraud cases.")
 
     col3, col4 = st.columns(2)
     with col3:
         st.plotly_chart(_fraud_rate_by_hour(frame), use_container_width=True)
+        _chart_note("Identifies high-risk hours when fraud is more common.")
     with col4:
         st.plotly_chart(_fraud_rate_by_city(frame), use_container_width=True)
+        _chart_note("Shows whether fraud concentration changes by city tier.")
 
     st.plotly_chart(_account_txn_heatmap(frame), use_container_width=True)
+    _chart_note("Highlights risky combinations of account type and transaction type.")
 
 
 def _render_pattern_analysis(frame: pd.DataFrame) -> None:
@@ -119,11 +137,14 @@ def _render_pattern_analysis(frame: pd.DataFrame) -> None:
             color="case_status",
             nbins=45,
             barmode="overlay",
-            title="Transaction amount distribution",
+            title="Transaction Amount: Fraud vs Genuine",
             color_discrete_map={"Fraud": "#d85b5b", "Legitimate": "#1f7a7a"},
         )
         fig.update_traces(opacity=0.64)
+        fig.update_xaxes(title_text="Transaction Amount")
+        fig.update_yaxes(title_text="Number of Transactions")
         st.plotly_chart(apply_chart_theme(fig), use_container_width=True)
+        _chart_note("Shows whether fraud amounts are typically higher or clustered differently than genuine transactions.")
     with col2:
         fig = px.histogram(
             labeled,
@@ -131,11 +152,14 @@ def _render_pattern_analysis(frame: pd.DataFrame) -> None:
             color="case_status",
             nbins=45,
             barmode="overlay",
-            title="Amount-to-average ratio distribution",
+            title="Amount Compared With Customer's Normal Average",
             color_discrete_map={"Fraud": "#d85b5b", "Legitimate": "#1f7a7a"},
         )
         fig.update_traces(opacity=0.64)
+        fig.update_xaxes(title_text="Transaction Amount / Average Transaction Amount")
+        fig.update_yaxes(title_text="Number of Transactions")
         st.plotly_chart(apply_chart_theme(fig), use_container_width=True)
+        _chart_note("Shows how far a transaction amount deviates from the customer's normal behavior.")
 
     fraud_only = frame[frame["is_fraud"].astype(int).eq(1)]
     col3, col4 = st.columns(2)
@@ -145,21 +169,28 @@ def _render_pattern_analysis(frame: pd.DataFrame) -> None:
             x="fraud_type",
             y="balance_drain_pct",
             color="fraud_type",
-            title="Balance drain by fraud pattern",
+            title="Balance Drained by Fraud Pattern",
             color_discrete_sequence=COLOR_SEQUENCE,
         )
         fig.update_layout(showlegend=False)
+        fig.update_xaxes(title_text="Fraud Pattern")
+        fig.update_yaxes(title_text="Balance Drained (%)")
         st.plotly_chart(apply_chart_theme(fig), use_container_width=True)
+        _chart_note("Shows which fraud patterns drain a larger share of the account balance.")
     with col4:
         velocity = fraud_only["velocity_24hr"].value_counts().sort_index().reset_index()
         velocity.columns = ["velocity_24hr", "records"]
-        fig = px.bar(velocity, x="velocity_24hr", y="records", title="Fraud velocity distribution", color_discrete_sequence=["#6c8fac"])
+        fig = px.bar(velocity, x="velocity_24hr", y="records", title="Repeated Fraud Attempts Within 24 Hours", color_discrete_sequence=["#6c8fac"])
+        fig.update_xaxes(title_text="Transactions in Last 24 Hours")
+        fig.update_yaxes(title_text="Fraud Case Count")
         st.plotly_chart(apply_chart_theme(fig), use_container_width=True)
+        _chart_note("Shows how repeated transaction attempts support fraud investigation.")
 
     col5, col6 = st.columns([0.75, 1.25])
     with col5:
-        fig = px.pie(fraud_only, names="fraud_type", title="Fraud type breakdown", color_discrete_sequence=COLOR_SEQUENCE)
+        fig = px.pie(fraud_only, names="fraud_type", title="Fraud Cases by Pattern Type", color_discrete_sequence=COLOR_SEQUENCE)
         st.plotly_chart(apply_chart_theme(fig), use_container_width=True)
+        _chart_note("Summarizes the main fraud patterns found in the selected records.")
     with col6:
         st.subheader("Model Feature Importance")
         if IMPORTANCE_PATH.exists():
@@ -205,11 +236,12 @@ def _render_case_lookup(frame: pd.DataFrame) -> None:
     st.dataframe(display[list(FRAUD_DISPLAY_COLUMNS.values())], use_container_width=True, hide_index=True)
 
 
-def render_fraud_dashboard() -> None:
-    page_header(
-        "Fraud Detection Dashboard",
-        "Operational story of suspicious transfers, account behavior shifts, velocity spikes, and verified fraud patterns.",
-    )
+def render_fraud_dashboard(show_header: bool = True) -> None:
+    if show_header:
+        page_header(
+            "Fraud Dashboard",
+            "Operational view of suspicious transfers, account behavior shifts, velocity spikes, and verified fraud patterns.",
+        )
 
     frame = get_fraud_data()
     if frame.empty:
