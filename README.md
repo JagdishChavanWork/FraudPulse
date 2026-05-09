@@ -1,8 +1,8 @@
-# Finlntel: Banking Risk Intelligence Platform
+# FinIntel: Banking Risk Intelligence Platform
 
 ## Overview
 
-Finlntel is a Streamlit-based banking risk intelligence application for analyst-assisted decision support. The platform combines credit risk analytics, credit approval prediction, maximum credit amount estimation, fraud dashboarding, fraud prediction, authentication, database integration, and prediction logging.
+FinIntel is a Streamlit-based banking risk intelligence application for analyst-assisted decision support. The platform combines credit risk analytics, credit approval prediction, maximum credit amount estimation, fraud dashboarding, fraud prediction, authentication, database integration, and prediction logging.
 
 ## Current Modules
 

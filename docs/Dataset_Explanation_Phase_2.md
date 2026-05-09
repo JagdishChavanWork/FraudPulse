@@ -1,4 +1,4 @@
-# Finlntel Phase 2 Dataset Explanation
+# FinIntel Phase 2 Dataset Explanation
 
 ## 1. Credit Risk Dataset With Bands
 
